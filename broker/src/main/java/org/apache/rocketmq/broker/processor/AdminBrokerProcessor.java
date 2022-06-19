@@ -325,6 +325,7 @@ public class AdminBrokerProcessor extends AsyncNettyRequestProcessor implements 
         accessConfig.setDefaultGroupPerm(requestHeader.getDefaultGroupPerm());
         accessConfig.setTopicPerms(UtilAll.split(requestHeader.getTopicPerms(), ","));
         accessConfig.setGroupPerms(UtilAll.split(requestHeader.getGroupPerms(), ","));
+        accessConfig.setNamespacePerms(UtilAll.split(requestHeader.getNamespacePerms(), ","));
         accessConfig.setAdmin(requestHeader.isAdmin());
         try {
 

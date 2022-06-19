@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.rocketmq.acl.common;
 
 import java.util.HashSet;
@@ -74,17 +75,30 @@ public class Permission {
         }
     }
 
-    public static void parseResourcePerms(PlainAccessResource plainAccessResource, Boolean isTopic,
-        List<String> resources) {
+    public static void parseResourcePerms(PlainAccessResource plainAccessResource, ResourceType resourceType,
+            List<String> resources) {
         if (resources == null || resources.isEmpty()) {
             return;
         }
         for (String resource : resources) {
             String[] items = StringUtils.split(resource, "=");
             if (items.length == 2) {
-                plainAccessResource.addResourceAndPerm(isTopic ? items[0].trim() : PlainAccessResource.getRetryTopic(items[0].trim()), parsePermFromString(items[1].trim()));
+                switch (resourceType) {
+                    case NAMESPACE:
+                        plainAccessResource.addNsResourceAndPerm(items[0].trim(), parsePermFromString(items[1].trim()));
+                        break;
+                    case TOPIC:
+                        plainAccessResource.addResourceAndPerm(items[0].trim(), parsePermFromString(items[1].trim()));
+                        break;
+                    case GROUP:
+                        plainAccessResource.addResourceAndPerm(PlainAccessResource.getRetryTopic(items[0].trim()),
+                                parsePermFromString(items[1].trim()));
+                        break;
+                }
+
             } else {
-                throw new AclException(String.format("Parse resource permission failed for %s:%s", isTopic ? "topic" : "group", resource));
+                throw new AclException(
+                        String.format("Parse resource permission failed for %s:%s", resourceType.name(), resource));
             }
         }
     }
@@ -98,17 +112,24 @@ public class Permission {
             String[] items = StringUtils.split(resource, "=");
             if (items.length != 2) {
                 throw new AclException(String.format("Parse Resource format error for %s.\n" +
-                    "The expected resource format is 'Res=Perm'. For example: topicA=SUB", resource));
+                        "The expected resource format is 'Res=Perm'. For example: topicA=SUB", resource));
             }
 
-            if (!AclConstants.DENY.equals(items[1].trim()) && Permission.DENY == Permission.parsePermFromString(items[1].trim())) {
+            if (!AclConstants.DENY.equals(items[1].trim()) && Permission.DENY == Permission
+                    .parsePermFromString(items[1].trim())) {
                 throw new AclException(String.format("Parse resource permission error for %s.\n" +
-                    "The expected permissions are 'SUB' or 'PUB' or 'SUB|PUB' or 'PUB|SUB'.", resource));
+                        "The expected permissions are 'SUB' or 'PUB' or 'SUB|PUB' or 'PUB|SUB'.", resource));
             }
         }
     }
 
     public static boolean needAdminPerm(Integer code) {
         return ADMIN_CODE.contains(code);
+    }
+
+    public enum ResourceType {
+        NAMESPACE,
+        TOPIC,
+        GROUP
     }
 }

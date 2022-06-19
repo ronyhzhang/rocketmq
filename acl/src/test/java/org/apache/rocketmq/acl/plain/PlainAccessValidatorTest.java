@@ -902,4 +902,38 @@ public class PlainAccessValidatorTest {
         plainAccessValidator.deleteAccessConfig(accessKey);
         AclUtils.writeDataObject(targetFileName, backUpAclConfigMap);
     }
+
+    @Test(expected = AclException.class)
+    public void validateNamespaceTest() throws RemotingCommandException {
+        SendMessageRequestHeader messageRequestHeader = new SendMessageRequestHeader();
+        messageRequestHeader.setTopic("ns-A%topicB");
+        RemotingCommand remotingCommand = RemotingCommand
+                .createRequestCommand(RequestCode.SEND_MESSAGE, messageRequestHeader);
+        aclClient.doBeforeRequest("", remotingCommand);
+
+        ByteBuffer buf = remotingCommand.encodeHeader();
+        buf.getInt();
+        buf = ByteBuffer.allocate(buf.limit() - buf.position()).put(buf);
+        buf.position(0);
+        PlainAccessResource accessResource = (PlainAccessResource) plainAccessValidator
+                .parse(RemotingCommand.decode(buf), "");
+        plainAccessValidator.validate(accessResource);
+    }
+
+    @Test
+    public void validateNamespaceTest2() throws RemotingCommandException {
+        SendMessageRequestHeader messageRequestHeader = new SendMessageRequestHeader();
+        messageRequestHeader.setTopic("ns-B%topicB");
+        RemotingCommand remotingCommand = RemotingCommand
+                .createRequestCommand(RequestCode.SEND_MESSAGE, messageRequestHeader);
+        aclClient.doBeforeRequest("", remotingCommand);
+
+        ByteBuffer buf = remotingCommand.encodeHeader();
+        buf.getInt();
+        buf = ByteBuffer.allocate(buf.limit() - buf.position()).put(buf);
+        buf.position(0);
+        PlainAccessResource accessResource = (PlainAccessResource) plainAccessValidator
+                .parse(RemotingCommand.decode(buf), "");
+        plainAccessValidator.validate(accessResource);
+    }
 }

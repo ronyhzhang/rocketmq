@@ -14,7 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.rocketmq.acl.plain;
+
+import static org.apache.rocketmq.acl.plain.PlainAccessResource.getRetryTopic;
 
 import java.util.List;
 import java.util.Map;
@@ -38,8 +41,6 @@ import org.apache.rocketmq.common.protocol.heartbeat.ConsumerData;
 import org.apache.rocketmq.common.protocol.heartbeat.HeartbeatData;
 import org.apache.rocketmq.common.protocol.heartbeat.SubscriptionData;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
-
-import static org.apache.rocketmq.acl.plain.PlainAccessResource.getRetryTopic;
 
 public class PlainAccessValidator implements AccessValidator {
 
@@ -79,11 +80,13 @@ public class PlainAccessValidator implements AccessValidator {
                     break;
                 case RequestCode.CONSUMER_SEND_MSG_BACK:
                     accessResource.addResourceAndPerm(request.getExtFields().get("originTopic"), Permission.PUB);
-                    accessResource.addResourceAndPerm(getRetryTopic(request.getExtFields().get("group")), Permission.SUB);
+                    accessResource
+                            .addResourceAndPerm(getRetryTopic(request.getExtFields().get("group")), Permission.SUB);
                     break;
                 case RequestCode.PULL_MESSAGE:
                     accessResource.addResourceAndPerm(request.getExtFields().get("topic"), Permission.SUB);
-                    accessResource.addResourceAndPerm(getRetryTopic(request.getExtFields().get("consumerGroup")), Permission.SUB);
+                    accessResource.addResourceAndPerm(getRetryTopic(request.getExtFields().get("consumerGroup")),
+                            Permission.SUB);
                     break;
                 case RequestCode.QUERY_MESSAGE:
                     accessResource.addResourceAndPerm(request.getExtFields().get("topic"), Permission.SUB);
@@ -99,21 +102,26 @@ public class PlainAccessValidator implements AccessValidator {
                     break;
                 case RequestCode.UNREGISTER_CLIENT:
                     final UnregisterClientRequestHeader unregisterClientRequestHeader =
-                        (UnregisterClientRequestHeader) request
-                            .decodeCommandCustomHeader(UnregisterClientRequestHeader.class);
-                    accessResource.addResourceAndPerm(getRetryTopic(unregisterClientRequestHeader.getConsumerGroup()), Permission.SUB);
+                            (UnregisterClientRequestHeader) request
+                                    .decodeCommandCustomHeader(UnregisterClientRequestHeader.class);
+                    accessResource.addResourceAndPerm(getRetryTopic(unregisterClientRequestHeader.getConsumerGroup()),
+                            Permission.SUB);
                     break;
                 case RequestCode.GET_CONSUMER_LIST_BY_GROUP:
                     final GetConsumerListByGroupRequestHeader getConsumerListByGroupRequestHeader =
-                        (GetConsumerListByGroupRequestHeader) request
-                            .decodeCommandCustomHeader(GetConsumerListByGroupRequestHeader.class);
-                    accessResource.addResourceAndPerm(getRetryTopic(getConsumerListByGroupRequestHeader.getConsumerGroup()), Permission.SUB);
+                            (GetConsumerListByGroupRequestHeader) request
+                                    .decodeCommandCustomHeader(GetConsumerListByGroupRequestHeader.class);
+                    accessResource
+                            .addResourceAndPerm(getRetryTopic(getConsumerListByGroupRequestHeader.getConsumerGroup()),
+                                    Permission.SUB);
                     break;
                 case RequestCode.UPDATE_CONSUMER_OFFSET:
                     final UpdateConsumerOffsetRequestHeader updateConsumerOffsetRequestHeader =
-                        (UpdateConsumerOffsetRequestHeader) request
-                            .decodeCommandCustomHeader(UpdateConsumerOffsetRequestHeader.class);
-                    accessResource.addResourceAndPerm(getRetryTopic(updateConsumerOffsetRequestHeader.getConsumerGroup()), Permission.SUB);
+                            (UpdateConsumerOffsetRequestHeader) request
+                                    .decodeCommandCustomHeader(UpdateConsumerOffsetRequestHeader.class);
+                    accessResource
+                            .addResourceAndPerm(getRetryTopic(updateConsumerOffsetRequestHeader.getConsumerGroup()),
+                                    Permission.SUB);
                     accessResource.addResourceAndPerm(updateConsumerOffsetRequestHeader.getTopic(), Permission.SUB);
                     break;
                 default:
@@ -128,7 +136,7 @@ public class PlainAccessValidator implements AccessValidator {
         SortedMap<String, String> map = new TreeMap<String, String>();
         for (Map.Entry<String, String> entry : request.getExtFields().entrySet()) {
             if (!SessionCredentials.SIGNATURE.equals(entry.getKey())
-                && !MixAll.UNIQUE_MSG_QUERY_FLAG.equals(entry.getKey())) {
+                    && !MixAll.UNIQUE_MSG_QUERY_FLAG.equals(entry.getKey())) {
                 map.put(entry.getKey(), entry.getValue());
             }
         }
@@ -151,20 +159,23 @@ public class PlainAccessValidator implements AccessValidator {
         return aclPlugEngine.deleteAccessConfig(accesskey);
     }
 
-    @Override public String  getAclConfigVersion() {
+    @Override
+    public String getAclConfigVersion() {
         return aclPlugEngine.getAclConfigDataVersion();
     }
 
-    @Override public boolean updateGlobalWhiteAddrsConfig(List<String> globalWhiteAddrsList) {
+    @Override
+    public boolean updateGlobalWhiteAddrsConfig(List<String> globalWhiteAddrsList) {
         return aclPlugEngine.updateGlobalWhiteAddrsConfig(globalWhiteAddrsList);
     }
 
-    @Override public AclConfig getAllAclConfig() {
+    @Override
+    public AclConfig getAllAclConfig() {
         return aclPlugEngine.getAllAclConfig();
     }
-    
+
     public Map<String, Object> createAclAccessConfigMap(Map<String, Object> existedAccountMap,
-        PlainAccessConfig plainAccessConfig) {
+            PlainAccessConfig plainAccessConfig) {
         return aclPlugEngine.createAclAccessConfigMap(existedAccountMap, plainAccessConfig);
     }
 

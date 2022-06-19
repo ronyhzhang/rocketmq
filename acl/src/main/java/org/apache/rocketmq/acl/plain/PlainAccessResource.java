@@ -14,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.rocketmq.acl.plain;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.rocketmq.acl.AccessResource;
+import org.apache.rocketmq.acl.common.Permission.ResourceType;
 import org.apache.rocketmq.common.MixAll;
 
 public class PlainAccessResource implements AccessResource {
@@ -38,6 +40,8 @@ public class PlainAccessResource implements AccessResource {
     private byte defaultGroupPerm = 1;
 
     private Map<String, Byte> resourcePermMap;
+
+    private Map<String, Byte> namespacePermMap;
 
     private RemoteAddressStrategy remoteAddressStrategy;
 
@@ -59,15 +63,19 @@ public class PlainAccessResource implements AccessResource {
         return null != topic && topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX);
     }
 
-    public static String printStr(String resource, boolean isGroup) {
+    public static String printStr(String resource, ResourceType resourceType) {
         if (resource == null) {
             return null;
         }
-        if (isGroup) {
-            return String.format("%s:%s", "group", getGroupFromRetryTopic(resource));
-        } else {
-            return String.format("%s:%s", "topic", resource);
+        switch (resourceType) {
+            case GROUP:
+                return String.format("%s:%s", "group", getGroupFromRetryTopic(resource));
+            case TOPIC:
+                return String.format("%s:%s", "topic", resource);
+            case NAMESPACE:
+                return String.format("%s:%s", "namespace", resource);
         }
+        return null;
     }
 
     public static String getGroupFromRetryTopic(String retryTopic) {
@@ -197,5 +205,19 @@ public class PlainAccessResource implements AccessResource {
 
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    public Map<String, Byte> getNamespacePermMap() {
+        return namespacePermMap;
+    }
+
+    public void addNsResourceAndPerm(String namespace, byte perm) {
+        if (namespace == null) {
+            return;
+        }
+        if (namespacePermMap == null) {
+            namespacePermMap = new HashMap<>();
+        }
+        namespacePermMap.put(namespace, perm);
     }
 }

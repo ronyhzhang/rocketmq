@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.rocketmq.acl.common;
 
 public class AclConstants {
@@ -37,6 +38,8 @@ public class AclConstants {
     public static final String CONFIG_TOPIC_PERMS = "topicPerms";
 
     public static final String CONFIG_GROUP_PERMS = "groupPerms";
+
+    public static final String CONFIG_NAMESPACE_PERMS = "namespacePerms";
 
     public static final String CONFIG_DATA_VERSION = "dataVersion";
 

@@ -76,6 +76,10 @@ public class UpdateAccessConfigSubCommand implements SubCommand {
         opt.setRequired(false);
         options.addOption(opt);
 
+        opt = new Option("N", "namespacePerms", true, "set namespacePerms list,eg: nsA=DENY,nsD=SUB");
+        opt.setRequired(false);
+        options.addOption(opt);
+
         opt = new Option("t", "topicPerms", true, "set topicPerms list,eg: topicA=DENY,topicD=SUB");
         opt.setRequired(false);
         options.addOption(opt);
@@ -93,7 +97,7 @@ public class UpdateAccessConfigSubCommand implements SubCommand {
 
     @Override
     public void execute(CommandLine commandLine, Options options,
-        RPCHook rpcHook) throws SubCommandException {
+            RPCHook rpcHook) throws SubCommandException {
 
         DefaultMQAdminExt defaultMQAdminExt = new DefaultMQAdminExt(rpcHook);
         defaultMQAdminExt.setInstanceName(Long.toString(System.currentTimeMillis()));
@@ -124,6 +128,18 @@ public class UpdateAccessConfigSubCommand implements SubCommand {
             // WhiteRemoteAddress
             if (commandLine.hasOption('w')) {
                 accessConfig.setWhiteRemoteAddress(commandLine.getOptionValue('w').trim());
+            }
+
+            // NamespacePerms list value
+            if (commandLine.hasOption('N')) {
+                String[] namespacePerms = commandLine.getOptionValue('N').trim().split(",");
+                List<String> namespacePermList = new ArrayList<String>();
+                if (namespacePerms != null) {
+                    for (String namespacePerm : namespacePerms) {
+                        namespacePermList.add(namespacePerm);
+                    }
+                }
+                accessConfig.setNamespacePerms(namespacePermList);
             }
 
             // TopicPerms list value
@@ -165,7 +181,7 @@ public class UpdateAccessConfigSubCommand implements SubCommand {
 
                 defaultMQAdminExt.start();
                 Set<String> brokerAddrSet =
-                    CommandUtil.fetchMasterAndSlaveAddrByClusterName(defaultMQAdminExt, clusterName);
+                        CommandUtil.fetchMasterAndSlaveAddrByClusterName(defaultMQAdminExt, clusterName);
                 for (String addr : brokerAddrSet) {
                     defaultMQAdminExt.createAndUpdatePlainAccessConfig(addr, accessConfig);
                     System.out.printf("create or update plain access config to %s success.%n", addr);

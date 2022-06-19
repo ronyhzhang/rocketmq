@@ -41,6 +41,9 @@ public class CreateAccessConfigRequestHeader implements CommandCustomHeader {
 
     // list string,eg: groupD=DENY,groupD=SUB
     private String groupPerms;
+
+    // list string,eg: NamespaceA=DENY,NamespaceB=SUB
+    private String namespacePerms;
     
 
     @Override public void checkFields() throws RemotingCommandException {
@@ -109,5 +112,13 @@ public class CreateAccessConfigRequestHeader implements CommandCustomHeader {
 
     public void setGroupPerms(String groupPerms) {
         this.groupPerms = groupPerms;
+    }
+
+    public String getNamespacePerms() {
+        return namespacePerms;
+    }
+
+    public void setNamespacePerms(String namespacePerms) {
+        this.namespacePerms = namespacePerms;
     }
 }

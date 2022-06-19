@@ -311,6 +311,7 @@ public class MQClientAPIImpl {
         requestHeader.setWhiteRemoteAddress(plainAccessConfig.getWhiteRemoteAddress());
         requestHeader.setTopicPerms(UtilAll.join(plainAccessConfig.getTopicPerms(), ","));
         requestHeader.setGroupPerms(UtilAll.join(plainAccessConfig.getGroupPerms(), ","));
+        requestHeader.setNamespacePerms(UtilAll.join(plainAccessConfig.getNamespacePerms(), ","));
 
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.UPDATE_AND_CREATE_ACL_CONFIG, requestHeader);
 

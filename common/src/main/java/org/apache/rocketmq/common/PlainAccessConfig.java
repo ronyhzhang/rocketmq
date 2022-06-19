@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.rocketmq.common;
 
 import java.util.List;
@@ -35,6 +36,8 @@ public class PlainAccessConfig {
     private List<String> topicPerms;
 
     private List<String> groupPerms;
+
+    private List<String> namespacePerms;
 
     public String getAccessKey() {
         return accessKey;
@@ -98,5 +101,13 @@ public class PlainAccessConfig {
 
     public void setGroupPerms(List<String> groupPerms) {
         this.groupPerms = groupPerms;
+    }
+
+    public List<String> getNamespacePerms() {
+        return namespacePerms;
+    }
+
+    public void setNamespacePerms(List<String> namespacePerms) {
+        this.namespacePerms = namespacePerms;
     }
 }

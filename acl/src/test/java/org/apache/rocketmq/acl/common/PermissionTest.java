@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.rocketmq.acl.common.Permission.ResourceType;
 import org.apache.rocketmq.acl.plain.PlainAccessResource;
 import org.junit.Assert;
 import org.junit.Test;
@@ -95,17 +96,17 @@ public class PermissionTest {
         PlainAccessResource plainAccessResource = new PlainAccessResource();
         Map<String, Byte> resourcePermMap = plainAccessResource.getResourcePermMap();
 
-        Permission.parseResourcePerms(plainAccessResource, false, null);
+        Permission.parseResourcePerms(plainAccessResource, ResourceType.GROUP, null);
         Assert.assertNull(resourcePermMap);
 
         List<String> groups = new ArrayList<>();
-        Permission.parseResourcePerms(plainAccessResource, false, groups);
+        Permission.parseResourcePerms(plainAccessResource, ResourceType.GROUP, groups);
         Assert.assertNull(resourcePermMap);
 
         groups.add("groupA=DENY");
         groups.add("groupB=PUB|SUB");
         groups.add("groupC=PUB");
-        Permission.parseResourcePerms(plainAccessResource, false, groups);
+        Permission.parseResourcePerms(plainAccessResource, ResourceType.GROUP, groups);
         resourcePermMap = plainAccessResource.getResourcePermMap();
 
         byte perm = resourcePermMap.get(PlainAccessResource.getRetryTopic("groupA"));
@@ -122,7 +123,7 @@ public class PermissionTest {
         topics.add("topicB=PUB|SUB");
         topics.add("topicC=PUB");
 
-        Permission.parseResourcePerms(plainAccessResource, true, topics);
+        Permission.parseResourcePerms(plainAccessResource, ResourceType.TOPIC, topics);
 
         perm = resourcePermMap.get("topicA");
         Assert.assertEquals(perm, Permission.DENY);
@@ -135,7 +136,7 @@ public class PermissionTest {
 
         List<String> erron = new ArrayList<>();
         erron.add("");
-        Permission.parseResourcePerms(plainAccessResource, false, erron);
+        Permission.parseResourcePerms(plainAccessResource, ResourceType.GROUP, erron);
     }
 
     @Test
